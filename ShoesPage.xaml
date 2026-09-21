@@ -32,23 +32,23 @@
             <TextBlock Text="поиск по наименованию" TextAlignment="Center"
         Width="250" FontSize="20"></TextBlock>
 
-            <TextBox Name="TBoxSearch"  Width="250" FontSize="15"></TextBox>
+            <TextBox Name="TBoxSearch"  Width="250" FontSize="15" TextChanged="TBoxSearch_TextChanged"></TextBox>
         </StackPanel>
 
         <StackPanel Grid.Column="2" Grid.Row="1" Margin="5"
             Orientation="Vertical" HorizontalAlignment="Center">
             <RadioButton Name="RButtonUp"  Content="по возрастанию стоимости" GroupName="Sort"
-        Width="300" FontSize="20" ></RadioButton>
+        Width="300" FontSize="20" Checked="RButtonUp_Checked" ></RadioButton>
 
             <RadioButton Name="RButtonDown" Content="по убыванию стоимости" GroupName="Sort"
-        Width="300" FontSize="20" ></RadioButton>
+        Width="300" FontSize="20" Checked="RButtonDown_Checked" ></RadioButton>
         </StackPanel>
 
         <StackPanel Grid.Column="3" Grid.Row="1" Margin="5"
             Orientation="Vertical" HorizontalAlignment="Left">
             <TextBlock Text="фильтрация" TextAlignment="Center" Width="300" FontSize="20"></TextBlock>
 
-            <ComboBox Name="ComboType"   FontSize="15" Width="200">
+            <ComboBox Name="ComboType"   FontSize="15" Width="200" SelectionChanged="ComboType_SelectionChanged">
                 <TextBlock>Все виды</TextBlock>
                 <TextBlock>Детская обувь</TextBlock>
                 <TextBlock>Женская обувь</TextBlock>
@@ -74,7 +74,7 @@
 
                         <Image Width="220" Grid.RowSpan="4" Grid.Column="0" Stretch="UniformToFill" HorizontalAlignment="Center">
                             <Image.Source>
-                                <Binding Path="ProductImagePath">
+                                <Binding Path="ProductPhotoPath">
                                     <Binding.TargetNullValue>
                                         <ImageSource>
                                             /Res/picture.png
@@ -88,10 +88,8 @@
                     FontSize="20" TextWrapping="Wrap"></TextBlock>
 
                         <TextBlock Text="{Binding ProductDescription}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"
-                    FontSize="20"></TextBlock>
+                    FontSize="20" TextWrapping="Wrap"></TextBlock>
 
-                        <TextBlock Text="{Binding ProductManufacturer}" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left"
-                    FontSize="20"></TextBlock>
 
                         <TextBlock Text="{Binding ProductCost, StringFormat={}{0:0} рублей}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"
                     FontSize="20"></TextBlock>

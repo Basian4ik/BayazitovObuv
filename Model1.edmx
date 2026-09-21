@@ -9,24 +9,21 @@
           <Key>
             <PropertyRef Name="ID_Category" />
           </Key>
-          <Property Name="ID_Category" Type="int" Nullable="false" />
+          <Property Name="ID_Category" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="CategoryName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Manufactures">
           <Key>
             <PropertyRef Name="ID_Manufacture" />
           </Key>
-          <Property Name="ID_Manufacture" Type="int" Nullable="false" />
+          <Property Name="ID_Manufacture" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ManufactureName" Type="nvarchar" MaxLength="100" Nullable="false" />
         </EntityType>
-        <!--Ошибки, обнаруженные при создании:
-предупреждение 6002: В таблице или представлении "Bayazitov_Shoes1.dbo.OrderProducts" не определен первичный ключ. Ключ был выведен, а определение таблицы или представления было создано в режиме только для чтения.-->
         <EntityType Name="OrderProducts">
           <Key>
-            <PropertyRef Name="ID_Item" />
-            <PropertyRef Name="ID_Order" />
-            <PropertyRef Name="Quantity" />
+            <PropertyRef Name="ID_OrderProduct" />
           </Key>
+          <Property Name="ID_OrderProduct" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_Item" Type="int" Nullable="false" />
           <Property Name="ID_Order" Type="int" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
@@ -35,7 +32,7 @@
           <Key>
             <PropertyRef Name="ID_Order" />
           </Key>
-          <Property Name="ID_Order" Type="int" Nullable="false" />
+          <Property Name="ID_Order" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="OrderDate" Type="date" Nullable="false" />
           <Property Name="ID_User" Type="int" Nullable="false" />
         </EntityType>
@@ -43,7 +40,7 @@
           <Key>
             <PropertyRef Name="ID_Product" />
           </Key>
-          <Property Name="ID_Product" Type="int" Nullable="false" />
+          <Property Name="ID_Product" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ProductName" Type="nvarchar" MaxLength="150" Nullable="false" />
           <Property Name="ID_Subcategory" Type="int" Nullable="false" />
           <Property Name="ID_Manufacture" Type="int" Nullable="false" />
@@ -57,21 +54,21 @@
           <Key>
             <PropertyRef Name="ID_Role" />
           </Key>
-          <Property Name="ID_Role" Type="int" Nullable="false" />
+          <Property Name="ID_Role" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="RoleName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Sizes">
           <Key>
             <PropertyRef Name="ID_Size" />
           </Key>
-          <Property Name="ID_Size" Type="int" Nullable="false" />
+          <Property Name="ID_Size" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Size" Type="decimal" Precision="3" Scale="1" Nullable="false" />
         </EntityType>
         <EntityType Name="StockItems">
           <Key>
             <PropertyRef Name="ID_Item" />
           </Key>
-          <Property Name="ID_Item" Type="int" Nullable="false" />
+          <Property Name="ID_Item" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="ID_Product" Type="int" Nullable="false" />
           <Property Name="ID_Size" Type="int" Nullable="false" />
           <Property Name="ItemsQuantity" Type="int" Nullable="false" />
@@ -80,14 +77,14 @@
           <Key>
             <PropertyRef Name="ID_Subcategory" />
           </Key>
-          <Property Name="ID_Subcategory" Type="int" Nullable="false" />
+          <Property Name="ID_Subcategory" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="SubcategoryName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
             <PropertyRef Name="ID_User" />
           </Key>
-          <Property Name="ID_User" Type="int" Nullable="false" />
+          <Property Name="ID_User" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="UserName" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="UserSurname" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="UserPatronymic" Type="nvarchar" MaxLength="50" />
@@ -205,6 +202,7 @@
         <EntityContainer Name="Хранилище Bayazitov_Shoes1ModelContainer">
           <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Manufactures" EntityType="Self.Manufactures" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderProducts" EntityType="Self.OrderProducts" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Orders" EntityType="Self.Orders" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
@@ -212,13 +210,6 @@
           <EntitySet Name="StockItems" EntityType="Self.StockItems" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Subcategories" EntityType="Self.Subcategories" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="OrderProducts" EntityType="Self.OrderProducts" store:Type="Tables" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [OrderProducts].[ID_Item] AS [ID_Item], 
-    [OrderProducts].[ID_Order] AS [ID_Order], 
-    [OrderProducts].[Quantity] AS [Quantity]
-    FROM [dbo].[OrderProducts] AS [OrderProducts]</DefiningQuery>
-          </EntitySet>
           <AssociationSet Name="FK_OrderProducts_Orders" Association="Self.FK_OrderProducts_Orders">
             <End Role="Orders" EntitySet="Orders" />
             <End Role="OrderProducts" EntitySet="OrderProducts" />
@@ -265,7 +256,7 @@
           <Key>
             <PropertyRef Name="ID_Category" />
           </Key>
-          <Property Name="ID_Category" Type="Int32" Nullable="false" />
+          <Property Name="ID_Category" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="CategoryName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Products" Relationship="Self.FK_Products_Categories" FromRole="Categories" ToRole="Products" />
         </EntityType>
@@ -273,15 +264,26 @@
           <Key>
             <PropertyRef Name="ID_Manufacture" />
           </Key>
-          <Property Name="ID_Manufacture" Type="Int32" Nullable="false" />
+          <Property Name="ID_Manufacture" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ManufactureName" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Products" Relationship="Self.FK_Products_Manufactures" FromRole="Manufactures" ToRole="Products" />
+        </EntityType>
+        <EntityType Name="OrderProducts">
+          <Key>
+            <PropertyRef Name="ID_OrderProduct" />
+          </Key>
+          <Property Name="ID_OrderProduct" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_Item" Type="Int32" Nullable="false" />
+          <Property Name="ID_Order" Type="Int32" Nullable="false" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Orders" Relationship="Self.FK_OrderProducts_Orders" FromRole="OrderProducts" ToRole="Orders" />
+          <NavigationProperty Name="StockItems" Relationship="Self.FK_OrderProducts_StockItems" FromRole="OrderProducts" ToRole="StockItems" />
         </EntityType>
         <EntityType Name="Orders">
           <Key>
             <PropertyRef Name="ID_Order" />
           </Key>
-          <Property Name="ID_Order" Type="Int32" Nullable="false" />
+          <Property Name="ID_Order" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="OrderDate" Type="DateTime" Nullable="false" Precision="0" />
           <Property Name="ID_User" Type="Int32" Nullable="false" />
           <NavigationProperty Name="OrderProducts" Relationship="Self.FK_OrderProducts_Orders" FromRole="Orders" ToRole="OrderProducts" />
@@ -291,7 +293,7 @@
           <Key>
             <PropertyRef Name="ID_Product" />
           </Key>
-          <Property Name="ID_Product" Type="Int32" Nullable="false" />
+          <Property Name="ID_Product" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ProductName" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="ID_Subcategory" Type="Int32" Nullable="false" />
           <Property Name="ID_Manufacture" Type="Int32" Nullable="false" />
@@ -309,7 +311,7 @@
           <Key>
             <PropertyRef Name="ID_Role" />
           </Key>
-          <Property Name="ID_Role" Type="Int32" Nullable="false" />
+          <Property Name="ID_Role" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="RoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Users" Relationship="Self.FK_Users_Roles" FromRole="Roles" ToRole="Users" />
         </EntityType>
@@ -317,7 +319,7 @@
           <Key>
             <PropertyRef Name="ID_Size" />
           </Key>
-          <Property Name="ID_Size" Type="Int32" Nullable="false" />
+          <Property Name="ID_Size" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="Size" Type="Decimal" Precision="3" Scale="1" Nullable="false" />
           <NavigationProperty Name="StockItems" Relationship="Self.FK_StockItems_Sizes" FromRole="Sizes" ToRole="StockItems" />
         </EntityType>
@@ -325,19 +327,19 @@
           <Key>
             <PropertyRef Name="ID_Item" />
           </Key>
-          <Property Name="ID_Item" Type="Int32" Nullable="false" />
+          <Property Name="ID_Item" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="ID_Product" Type="Int32" Nullable="false" />
           <Property Name="ID_Size" Type="Int32" Nullable="false" />
           <Property Name="ItemsQuantity" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="OrderProducts" Relationship="Self.FK_OrderProducts_StockItems" FromRole="StockItems" ToRole="OrderProducts" />
           <NavigationProperty Name="Products" Relationship="Self.FK_StockItems_Products" FromRole="StockItems" ToRole="Products" />
           <NavigationProperty Name="Sizes" Relationship="Self.FK_StockItems_Sizes" FromRole="StockItems" ToRole="Sizes" />
-          <NavigationProperty Name="OrderProducts" Relationship="Self.FK_OrderProducts_StockItems" FromRole="StockItems" ToRole="OrderProducts" />
         </EntityType>
         <EntityType Name="Subcategories">
           <Key>
             <PropertyRef Name="ID_Subcategory" />
           </Key>
-          <Property Name="ID_Subcategory" Type="Int32" Nullable="false" />
+          <Property Name="ID_Subcategory" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="SubcategoryName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="Products" Relationship="Self.FK_Products_Subcategories" FromRole="Subcategories" ToRole="Products" />
         </EntityType>
@@ -345,7 +347,7 @@
           <Key>
             <PropertyRef Name="ID_User" />
           </Key>
-          <Property Name="ID_User" Type="Int32" Nullable="false" />
+          <Property Name="ID_User" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="UserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="UserSurname" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="UserPatronymic" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -353,18 +355,6 @@
           <Property Name="ID_Role" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Orders" Relationship="Self.FK_Orders_Users" FromRole="Users" ToRole="Orders" />
           <NavigationProperty Name="Roles" Relationship="Self.FK_Users_Roles" FromRole="Users" ToRole="Roles" />
-        </EntityType>
-        <EntityType Name="OrderProducts">
-          <Key>
-            <PropertyRef Name="ID_Item" />
-            <PropertyRef Name="ID_Order" />
-            <PropertyRef Name="Quantity" />
-          </Key>
-          <Property Name="ID_Item" Type="Int32" Nullable="false" />
-          <Property Name="ID_Order" Type="Int32" Nullable="false" />
-          <Property Name="Quantity" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Orders" Relationship="Self.FK_OrderProducts_Orders" FromRole="OrderProducts" ToRole="Orders" />
-          <NavigationProperty Name="StockItems" Relationship="Self.FK_OrderProducts_StockItems" FromRole="OrderProducts" ToRole="StockItems" />
         </EntityType>
         <Association Name="FK_Products_Categories">
           <End Role="Categories" Type="Self.Categories" Multiplicity="1" />
@@ -399,6 +389,18 @@
             </Principal>
             <Dependent Role="OrderProducts">
               <PropertyRef Name="ID_Order" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_OrderProducts_StockItems">
+          <End Role="StockItems" Type="Self.StockItems" Multiplicity="1" />
+          <End Role="OrderProducts" Type="Self.OrderProducts" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="StockItems">
+              <PropertyRef Name="ID_Item" />
+            </Principal>
+            <Dependent Role="OrderProducts">
+              <PropertyRef Name="ID_Item" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -462,21 +464,10 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_OrderProducts_StockItems">
-          <End Role="StockItems" Type="Self.StockItems" Multiplicity="1" />
-          <End Role="OrderProducts" Type="Self.OrderProducts" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="StockItems">
-              <PropertyRef Name="ID_Item" />
-            </Principal>
-            <Dependent Role="OrderProducts">
-              <PropertyRef Name="ID_Item" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="Bayazitov_Shoes1Entities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Categories" EntityType="Self.Categories" />
           <EntitySet Name="Manufactures" EntityType="Self.Manufactures" />
+          <EntitySet Name="OrderProducts" EntityType="Self.OrderProducts" />
           <EntitySet Name="Orders" EntityType="Self.Orders" />
           <EntitySet Name="Products" EntityType="Self.Products" />
           <EntitySet Name="Roles" EntityType="Self.Roles" />
@@ -484,7 +475,6 @@
           <EntitySet Name="StockItems" EntityType="Self.StockItems" />
           <EntitySet Name="Subcategories" EntityType="Self.Subcategories" />
           <EntitySet Name="Users" EntityType="Self.Users" />
-          <EntitySet Name="OrderProducts" EntityType="Self.OrderProducts" />
           <AssociationSet Name="FK_Products_Categories" Association="Self.FK_Products_Categories">
             <End Role="Categories" EntitySet="Categories" />
             <End Role="Products" EntitySet="Products" />
@@ -495,6 +485,10 @@
           </AssociationSet>
           <AssociationSet Name="FK_OrderProducts_Orders" Association="Self.FK_OrderProducts_Orders">
             <End Role="Orders" EntitySet="Orders" />
+            <End Role="OrderProducts" EntitySet="OrderProducts" />
+          </AssociationSet>
+          <AssociationSet Name="FK_OrderProducts_StockItems" Association="Self.FK_OrderProducts_StockItems">
+            <End Role="StockItems" EntitySet="StockItems" />
             <End Role="OrderProducts" EntitySet="OrderProducts" />
           </AssociationSet>
           <AssociationSet Name="FK_Orders_Users" Association="Self.FK_Orders_Users">
@@ -517,10 +511,6 @@
             <End Role="Sizes" EntitySet="Sizes" />
             <End Role="StockItems" EntitySet="StockItems" />
           </AssociationSet>
-          <AssociationSet Name="FK_OrderProducts_StockItems" Association="Self.FK_OrderProducts_StockItems">
-            <End Role="StockItems" EntitySet="StockItems" />
-            <End Role="OrderProducts" EntitySet="OrderProducts" />
-          </AssociationSet>
         </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
@@ -541,6 +531,16 @@
               <MappingFragment StoreEntitySet="Manufactures">
                 <ScalarProperty Name="ID_Manufacture" ColumnName="ID_Manufacture" />
                 <ScalarProperty Name="ManufactureName" ColumnName="ManufactureName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderProducts">
+            <EntityTypeMapping TypeName="Bayazitov_Shoes1Model.OrderProducts">
+              <MappingFragment StoreEntitySet="OrderProducts">
+                <ScalarProperty Name="ID_OrderProduct" ColumnName="ID_OrderProduct" />
+                <ScalarProperty Name="ID_Item" ColumnName="ID_Item" />
+                <ScalarProperty Name="ID_Order" ColumnName="ID_Order" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -611,15 +611,6 @@
                 <ScalarProperty Name="UserPatronymic" ColumnName="UserPatronymic" />
                 <ScalarProperty Name="UserLogin" ColumnName="UserLogin" />
                 <ScalarProperty Name="ID_Role" ColumnName="ID_Role" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="OrderProducts">
-            <EntityTypeMapping TypeName="Bayazitov_Shoes1Model.OrderProducts">
-              <MappingFragment StoreEntitySet="OrderProducts">
-                <ScalarProperty Name="ID_Item" ColumnName="ID_Item" />
-                <ScalarProperty Name="ID_Order" ColumnName="ID_Order" />
-                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

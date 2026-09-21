@@ -25,9 +25,9 @@ namespace BayazitovObuv
         public int ID_Size { get; set; }
         public int ItemsQuantity { get; set; }
     
-        public virtual Products Products { get; set; }
-        public virtual Sizes Sizes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<OrderProducts> OrderProducts { get; set; }
+        public virtual Products Products { get; set; }
+        public virtual Sizes Sizes { get; set; }
     }
 }

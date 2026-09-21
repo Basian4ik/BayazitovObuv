@@ -15,7 +15,7 @@ namespace BayazitovObuv
     
     public partial class Bayazitov_Shoes1Entities : DbContext
     {
-        private static Bayazitov_Shoes1Entities _context;
+        public static Bayazitov_Shoes1Entities _context;
 
         public static Bayazitov_Shoes1Entities GetContext()
         {
@@ -23,7 +23,6 @@ namespace BayazitovObuv
                 _context = new Bayazitov_Shoes1Entities();
             return _context;
         }
-
         public Bayazitov_Shoes1Entities()
             : base("name=Bayazitov_Shoes1Entities")
         {
@@ -36,6 +35,7 @@ namespace BayazitovObuv
     
         public virtual DbSet<Categories> Categories { get; set; }
         public virtual DbSet<Manufactures> Manufactures { get; set; }
+        public virtual DbSet<OrderProducts> OrderProducts { get; set; }
         public virtual DbSet<Orders> Orders { get; set; }
         public virtual DbSet<Products> Products { get; set; }
         public virtual DbSet<Roles> Roles { get; set; }
@@ -43,6 +43,5 @@ namespace BayazitovObuv
         public virtual DbSet<StockItems> StockItems { get; set; }
         public virtual DbSet<Subcategories> Subcategories { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-        public virtual DbSet<OrderProducts> OrderProducts { get; set; }
     }
 }

@@ -14,6 +14,7 @@ namespace BayazitovObuv
     
     public partial class OrderProducts
     {
+        public int ID_OrderProduct { get; set; }
         public int ID_Item { get; set; }
         public int ID_Order { get; set; }
         public int Quantity { get; set; }
