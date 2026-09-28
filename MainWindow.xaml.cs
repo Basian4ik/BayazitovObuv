@@ -23,7 +23,7 @@ namespace BayazitovObuv
         public MainWindow()
         {
             InitializeComponent();
-            MainFrame.Navigate(new ShoesPage());
+            MainFrame.Navigate(new AuthPage());
             Manager.MainFrame=MainFrame;
         }
 

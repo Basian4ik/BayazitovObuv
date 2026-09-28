@@ -20,12 +20,32 @@ namespace BayazitovObuv
     /// </summary>
     public partial class ShoesPage : Page
     {
-        public ShoesPage()
+        public ShoesPage(Users user)
         {
             InitializeComponent();
+            // FIOTB - TextBlock для отображения ФИО
+            FIOTB.Text = user.UserSurname + " " + user.UserName + " " + user.UserPatronymic;
+
+            // RoleTB - TextBlock для отображения роли
+            switch (user.ID_Role)
+            {
+                case 1:
+                    RoleTB.Text = "Администратор";
+                    break;
+                case 2:
+                    RoleTB.Text = "Менеджер";
+                    break;
+                case 3:
+                    RoleTB.Text = "Пользователь";
+                    break;
+                case 4:
+                    RoleTB.Text = "Гость";
+                    break;
+            }
             var currentProducts = Bayazitov_Shoes1Entities.GetContext().Products.ToList();
 
             ProductListView.ItemsSource = currentProducts;
+
         }
 
         private void UpdateProductes()
@@ -85,5 +105,6 @@ namespace BayazitovObuv
         {
             UpdateProductes();
         }
+
     }
 }
