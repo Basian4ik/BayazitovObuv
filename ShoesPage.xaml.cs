@@ -20,9 +20,27 @@ namespace BayazitovObuv
     /// </summary>
     public partial class ShoesPage : Page
     {
+        private Users _currentUser;
+        private int _userRole; // роль текущего пользователя
+
+        // Ключ — ID_Product, значение — количество
+        private static Dictionary<int, int> _orderItems = new Dictionary<int, int>();
+
+        public static event Action OnCartCleared;
+
+        public static void ClearOrderItems()
+        {
+            _orderItems.Clear();
+            OnCartCleared?.Invoke();
+        }
+
         public ShoesPage(Users user)
         {
             InitializeComponent();
+
+            _currentUser = user;
+            _userRole = user.ID_Role;
+
             // FIOTB - TextBlock для отображения ФИО
             FIOTB.Text = user.UserSurname + " " + user.UserName + " " + user.UserPatronymic;
 
@@ -42,10 +60,20 @@ namespace BayazitovObuv
                     RoleTB.Text = "Гость";
                     break;
             }
-            var currentProducts = Bayazitov_Shoes1Entities.GetContext().Products.ToList();
 
+            var currentProducts = Bayazitov_Shoes1Entities.GetContext().Products.ToList();
             ProductListView.ItemsSource = currentProducts;
 
+            ComboType.SelectedIndex = 0;
+            UpdateProductes();
+
+            // Гостю убираем контекстное меню (не сможет "Добавить к заказу")
+            if (_userRole == 4)
+            {
+                ProductListView.ContextMenu = null;
+            }
+
+            UpdateOrderButtonVisibility();
         }
 
         private void UpdateProductes()
@@ -54,35 +82,44 @@ namespace BayazitovObuv
 
             if (ComboType.SelectedIndex == 0)
             {
-                currentShoes = currentShoes.Where(p => (Convert.ToInt32(p.ID_Category) >= 0 && Convert.ToInt32(p.ID_Category) <= 3)).ToList();
+                currentShoes = currentShoes.Where(p => p.ID_Category >= 0 && p.ID_Category <= 3).ToList();
             }
 
             if (ComboType.SelectedIndex == 1)
             {
-                currentShoes = currentShoes.Where(p => (Convert.ToInt32(p.ID_Category) == 1)).ToList();
+                currentShoes = currentShoes.Where(p => p.ID_Category == 1).ToList();
             }
 
             if (ComboType.SelectedIndex == 2)
             {
-                currentShoes = currentShoes.Where(p => (Convert.ToInt32(p.ID_Category) == 2)).ToList();
+                currentShoes = currentShoes.Where(p => p.ID_Category == 2).ToList();
             }
+
             if (ComboType.SelectedIndex == 3)
             {
-                currentShoes = currentShoes.Where(p => (Convert.ToInt32(p.ID_Category) == 3)).ToList();
+                currentShoes = currentShoes.Where(p => p.ID_Category == 3).ToList();
             }
 
-            currentShoes = currentShoes.Where(p => p.ProductName.ToLower().Contains(TBoxSearch.Text.ToLower())).ToList();
+            currentShoes = currentShoes
+                .Where(p => p.ProductName.ToLower().Contains(TBoxSearch.Text.ToLower()))
+                .ToList();
 
-            ProductListView.ItemsSource = currentShoes.ToList();
-
-            if (RButtonDown.IsChecked.Value)
+            if (RButtonDown.IsChecked == true)
             {
-                ProductListView.ItemsSource = currentShoes.OrderByDescending(p => p.ProductCost).ToList();
+                currentShoes = currentShoes.OrderByDescending(p => p.ProductCost).ToList();
             }
 
-            if (RButtonUp.IsChecked.Value)
+            if (RButtonUp.IsChecked == true)
             {
-                ProductListView.ItemsSource = currentShoes.OrderBy(p => p.ProductCost).ToList();
+                currentShoes = currentShoes.OrderBy(p => p.ProductCost).ToList();
+            }
+
+            ProductListView.ItemsSource = currentShoes;
+
+            // Счётчик товаров (если есть TextBlock TBlockCount)
+            if (TBlockCount != null)
+            {
+                TBlockCount.Text = $"кол-во {currentShoes.Count} из {Bayazitov_Shoes1Entities.GetContext().Products.Count()}";
             }
         }
 
@@ -106,5 +143,85 @@ namespace BayazitovObuv
             UpdateProductes();
         }
 
+        // ============ ЗАКАЗ ============
+
+        private void AddToOrder(Products product)
+        {
+            // Гость (роль 4) не может добавлять товары в заказ
+            if (_userRole == 4)
+            {
+                MessageBox.Show("Гости не могут оформлять заказы. Войдите в систему.",
+                    "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int id = product.ID_Product;
+
+            if (_orderItems.ContainsKey(id))
+                _orderItems[id]++;
+            else
+                _orderItems[id] = 1;
+
+            UpdateOrderButtonVisibility();
+            MessageBox.Show($"Товар \"{product.ProductName}\" добавлен к заказу");
+        }
+
+        private void AddToOrderMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (ProductListView.SelectedItem is Products selectedProduct)
+                AddToOrder(selectedProduct);
+            else
+                MessageBox.Show("Выберите товар из списка (кликните по строке).");
+        }
+
+        private void UpdateOrderButtonVisibility()
+        {
+            // Гостю кнопку "Просмотреть заказ" вообще не показываем
+            if (_userRole == 4)
+            {
+                ViewOrderBtn.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            int totalCount = _orderItems.Sum(i => i.Value);
+            ViewOrderBtn.Visibility = totalCount > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void ViewOrderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            // Дополнительная защита
+            if (_userRole == 4)
+            {
+                MessageBox.Show("Гости не могут просматривать заказ.",
+                    "Доступ запрещён", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var items = new List<OrderItem>();
+            var products = new List<Products>();
+
+            foreach (var kv in _orderItems)
+            {
+                var product = Bayazitov_Shoes1Entities.GetContext().Products
+                    .FirstOrDefault(p => p.ID_Product == kv.Key);
+
+                if (product != null)
+                {
+                    products.Add(product);
+                    items.Add(new OrderItem
+                    {
+                        ID_Product = product.ID_Product,
+                        Count = kv.Value
+                    });
+                }
+            }
+
+            var orderWindow = new OrderWindow(items, products, _currentUser);
+            orderWindow.Owner = Application.Current.MainWindow;
+            orderWindow.Closed += (s, args) => UpdateOrderButtonVisibility();
+            orderWindow.ShowDialog();
+
+            UpdateOrderButtonVisibility();
+        }
     }
 }

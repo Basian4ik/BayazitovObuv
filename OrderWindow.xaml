@@ -80,7 +80,7 @@
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
         </Grid>
-        <Button Name="SaveOrderButton" Content="Сохранить заказ"  Grid.Row="3" Margin="615,5,10,5" Grid.ColumnSpan="2"></Button>
+        <Button Name="SaveOrderButton" Content="Сохранить заказ" Click="SaveOrderButton_Click"  Grid.Row="3" Margin="615,5,10,5" Grid.ColumnSpan="2"></Button>
 
     </Grid>
 </Window>

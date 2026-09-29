@@ -64,6 +64,11 @@
             </ComboBox>
         </StackPanel>
         <ListView Name="ProductListView" Grid.Row="2" Grid.ColumnSpan="4">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Добавить к заказу" Click="AddToOrderMenuItem_Click"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
@@ -101,11 +106,14 @@
 
                         <TextBlock Text="{Binding ProductCost, StringFormat={}{0:0} рублей}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"
                     FontSize="20"></TextBlock>
+                        
 
 
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <Button Name="ViewOrderBtn" Content="Просмотреть заказ" Grid.Row="2" Grid.ColumnSpan="4" Click="ViewOrderBtn_Click"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed" FontSize="15" Margin="10"/>
     </Grid>
 </Page>
