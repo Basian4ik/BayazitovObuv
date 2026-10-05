@@ -87,7 +87,7 @@
 
                         <Image Width="220" Grid.RowSpan="4" Grid.Column="0" Stretch="UniformToFill" HorizontalAlignment="Center">
                             <Image.Source>
-                                <Binding Path="ProductPhotoPath">
+                                <Binding Path="PhotoPath">
                                     <Binding.TargetNullValue>
                                         <ImageSource>
                                             /Res/picture.png

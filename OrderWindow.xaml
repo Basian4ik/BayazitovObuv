@@ -68,7 +68,7 @@
                                     </Binding>
                                 </Image.Source>
                             </Image>
-                            
+
                         </Grid>
                     </Border>
                 </DataTemplate>

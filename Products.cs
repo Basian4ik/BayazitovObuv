@@ -30,7 +30,7 @@ namespace BayazitovObuv
         public int ID_Category { get; set; }
         public string ProductImage { get; set; }
 
-        public string ProductPhotoPath
+        public string PhotoPath
         {
             get
             {

@@ -15,12 +15,13 @@ namespace BayazitovObuv
     
     public partial class Bayazitov_Shoes1Entities : DbContext
     {
-        public static Bayazitov_Shoes1Entities _context;
+        private static Bayazitov_Shoes1Entities _context;
 
         public static Bayazitov_Shoes1Entities GetContext()
         {
             if (_context == null)
                 _context = new Bayazitov_Shoes1Entities();
+
             return _context;
         }
         public Bayazitov_Shoes1Entities()
