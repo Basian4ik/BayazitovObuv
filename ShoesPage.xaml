@@ -102,6 +102,13 @@
 
                         <TextBlock Text="{Binding ProductDescription}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"
                     FontSize="20" TextWrapping="Wrap"></TextBlock>
+                        <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
+                            <TextBlock Text="Категория: " FontWeight="Bold" FontSize="18"/>
+                            <TextBlock Text="{Binding Categories.CategoryName}" FontSize="18" Margin="0,0,20,0"/>
+
+                            <TextBlock Text="Подкатегория: " FontWeight="Bold" FontSize="18"/>
+                            <TextBlock Text="{Binding Subcategories.SubcategoryName}" FontSize="18"/>
+                        </StackPanel>
 
 
                         <TextBlock Text="{Binding ProductCost, StringFormat={}{0:0} рублей}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"

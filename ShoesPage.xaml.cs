@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Data.Entity;
 
 namespace BayazitovObuv
 {
@@ -24,13 +25,13 @@ namespace BayazitovObuv
         private int _userRole; // роль текущего пользователя
 
         // Ключ — ID_Product, значение — количество
-        private static Dictionary<int, int> _orderItems = new Dictionary<int, int>();
+        private static List<CartItem> _cart = new List<CartItem>();
 
         public static event Action OnCartCleared;
 
         public static void ClearOrderItems()
         {
-            _orderItems.Clear();
+            _cart.Clear();
             OnCartCleared?.Invoke();
         }
 
@@ -147,7 +148,6 @@ namespace BayazitovObuv
 
         private void AddToOrder(Products product)
         {
-            // Гость (роль 4) не может добавлять товары в заказ
             if (_userRole == 4)
             {
                 MessageBox.Show("Гости не могут оформлять заказы. Войдите в систему.",
@@ -155,15 +155,53 @@ namespace BayazitovObuv
                 return;
             }
 
-            int id = product.ID_Product;
+            var context = Bayazitov_Shoes1Entities.GetContext();
 
-            if (_orderItems.ContainsKey(id))
-                _orderItems[id]++;
+            var availableStocks = context.StockItems
+                .Include(s => s.Sizes)
+                .Include(s => s.Products)
+                .Where(s => s.ID_Product == product.ID_Product && s.ItemsQuantity > 0)
+                .ToList();
+
+            if (availableStocks.Count == 0)
+            {
+                MessageBox.Show($"Товар \"{product.ProductName}\" отсутствует на складе.");
+                return;
+            }
+
+            StockItems chosenStock;
+
+            if (availableStocks.Count == 1)
+            {
+                chosenStock = availableStocks[0]; // один размер — не спрашиваем
+            }
             else
-                _orderItems[id] = 1;
+            {
+                var dlg = new SizeSelectionWindow(product, availableStocks)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                if (dlg.ShowDialog() != true) return;
+                chosenStock = dlg.SelectedStock;
+            }
+
+            var existing = _cart.FirstOrDefault(c => c.Stock.ID_Item == chosenStock.ID_Item);
+
+            if (existing != null)
+            {
+                if (existing.Quantity >= chosenStock.ItemsQuantity)
+                {
+                    MessageBox.Show($"На складе доступно только {chosenStock.ItemsQuantity} шт.");
+                    return;
+                }
+                existing.Quantity++;
+            }
+            else
+            {
+                _cart.Add(new CartItem { Stock = chosenStock, Quantity = 1 });
+            }
 
             UpdateOrderButtonVisibility();
-            MessageBox.Show($"Товар \"{product.ProductName}\" добавлен к заказу");
         }
 
         private void AddToOrderMenuItem_Click(object sender, RoutedEventArgs e)
@@ -183,13 +221,12 @@ namespace BayazitovObuv
                 return;
             }
 
-            int totalCount = _orderItems.Sum(i => i.Value);
+            int totalCount = _cart.Sum(i => i.Quantity);
             ViewOrderBtn.Visibility = totalCount > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ViewOrderBtn_Click(object sender, RoutedEventArgs e)
         {
-            // Дополнительная защита
             if (_userRole == 4)
             {
                 MessageBox.Show("Гости не могут просматривать заказ.",
@@ -197,26 +234,9 @@ namespace BayazitovObuv
                 return;
             }
 
-            var items = new List<OrderItem>();
-            var products = new List<Products>();
+            if (_cart.Count == 0) return;
 
-            foreach (var kv in _orderItems)
-            {
-                var product = Bayazitov_Shoes1Entities.GetContext().Products
-                    .FirstOrDefault(p => p.ID_Product == kv.Key);
-
-                if (product != null)
-                {
-                    products.Add(product);
-                    items.Add(new OrderItem
-                    {
-                        ID_Product = product.ID_Product,
-                        Count = kv.Value
-                    });
-                }
-            }
-
-            var orderWindow = new OrderWindow(items, products, _currentUser);
+            var orderWindow = new OrderWindow(_cart, _currentUser);
             orderWindow.Owner = Application.Current.MainWindow;
             orderWindow.Closed += (s, args) => UpdateOrderButtonVisibility();
             orderWindow.ShowDialog();

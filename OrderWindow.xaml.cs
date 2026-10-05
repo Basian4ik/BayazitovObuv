@@ -19,159 +19,159 @@ namespace BayazitovObuv
     /// </summary>
     public partial class OrderWindow : Window
     {
-        private List<OrderItem> _selectedOrderItems = new List<OrderItem>();
-        private List<Products> _selectedProducts = new List<Products>();
+        private List<CartItem> cartItems;
         private Users _currentUser;
 
-        public OrderWindow(List<OrderItem> selectedOrderItems, List<Products> selectedProducts, Users user)
+        public OrderWindow(List<CartItem> items, Users user)
         {
             InitializeComponent();
 
+            cartItems = items;
             _currentUser = user;
-            _selectedOrderItems = selectedOrderItems;
-            _selectedProducts = selectedProducts;
 
-            // ФИО клиента
             if (user != null)
-                ClientNameText.Text = $"{user.UserSurname} {user.UserName} {user.UserPatronymic}";
+                ClientLabel.Text = "Клиент: " + user.UserSurname + " " + user.UserName + " " + user.UserPatronymic;
 
-            // Синхронизируем Quantity у Products с OrderItem.Count
-            foreach (var p in _selectedProducts)
-            {
-                var op = _selectedOrderItems.FirstOrDefault(o => o.ID_Product == p.ID_Product);
-                p.Quantity = op != null ? op.Count : 1;
-            }
+            OrderNumberLabel.Text = "Номер заказа: " + GetNextOrderNumber();
+            OrderDateLabel.Text = "Дата заказа: " + DateTime.Now.ToString("dd.MM.yyyy");
+            UpdateDeliveryDate();
 
-            OrderItemsListView.ItemsSource = _selectedProducts;
-
-            // Номер заказа — просто порядковый (в БД ничего не пишем)
-            OrderNumberText.Text = _selectedProducts.Count.ToString();
-
-            SetDeliveryDate();
+            OrderListView.ItemsSource = cartItems;
+            UpdateTotal();
         }
 
-        private void SetDeliveryDate()
+        private int GetNextOrderNumber()
         {
-            // Если каждого товара <= 3 шт. — 3 дня, иначе 6 дней
-            bool fastDeliveryPossible = true;
-            foreach (var op in _selectedOrderItems)
-            {
-                if (op.Count > 3)
-                {
-                    fastDeliveryPossible = false;
-                    break;
-                }
-            }
-
-            int deliveryDays = fastDeliveryPossible ? 3 : 6;
-
-            DateTime orderDate = DateTime.Now;
-            OrderDateText.Text = orderDate.ToString("dd.MM.yyyy");
-            DeliveryDateText.Text = orderDate.AddDays(deliveryDays).ToString("dd.MM.yyyy");
+            var db = Bayazitov_Shoes1Entities.GetContext();
+            return (db.Orders.Any() ? db.Orders.Max(o => o.ID_Order) : 0) + 1;
         }
 
-        // ============ КНОПКИ + / - ============
-
-        private void btnMinus_Click(object sender, RoutedEventArgs e)
+        private void UpdateDeliveryDate()
         {
-            var prod = (sender as Button)?.DataContext as Products;
-            if (prod == null) return;
-
-            if (prod.Quantity > 1)
-            {
-                prod.Quantity--;
-
-                var op = _selectedOrderItems.FirstOrDefault(o => o.ID_Product == prod.ID_Product);
-                if (op != null) op.Count = prod.Quantity;
-
-                SetDeliveryDate();
-                OrderItemsListView.Items.Refresh();
-            }
+            bool fast = cartItems.All(ci => ci.Quantity <= 3);
+            int days = fast ? 3 : 6;
+            DeliveryDateLabel.Text = "Дата доставки: " + DateTime.Now.AddDays(days).ToString("dd.MM.yyyy");
         }
 
-        private void btnPlus_Click(object sender, RoutedEventArgs e)
+        private void UpdateTotal()
         {
-            var prod = (sender as Button)?.DataContext as Products;
-            if (prod == null) return;
-
-            prod.Quantity++;
-
-            var op = _selectedOrderItems.FirstOrDefault(o => o.ID_Product == prod.ID_Product);
-            if (op != null) op.Count = prod.Quantity;
-
-            SetDeliveryDate();
-            OrderItemsListView.Items.Refresh();
+            decimal total = cartItems.Sum(ci => ci.Total);
+            TotalTB.Text = total.ToString("0") + " руб.";
+            OrderListView.Items.Refresh();
         }
 
-        // ============ УДАЛИТЬ ТОВАР ============
-
-        private void RemoveItem_Click(object sender, RoutedEventArgs e)
+        private void SaveOrderBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button button && button.DataContext is Products product)
+            if (cartItems.Count == 0)
             {
-                var result = MessageBox.Show("Удалить товар из заказа?",
-                    "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    _selectedProducts.Remove(product);
-                    var op = _selectedOrderItems.FirstOrDefault(o => o.ID_Product == product.ID_Product);
-                    if (op != null) _selectedOrderItems.Remove(op);
-
-                    if (_selectedProducts.Count == 0)
-                    {
-                        MessageBox.Show("Заказ пуст");
-                        ShoesPage.ClearOrderItems();
-                        this.DialogResult = false;
-                        this.Close();
-                    }
-                    else
-                    {
-                        OrderItemsListView.ItemsSource = null;
-                        OrderItemsListView.ItemsSource = _selectedProducts;
-                        SetDeliveryDate();
-                    }
-                }
-            }
-        }
-
-        // ============ СОХРАНИТЬ (пока без БД) ============
-
-        private void SaveOrderButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_selectedProducts.Count == 0)
-            {
-                MessageBox.Show("Добавьте товары в заказ!");
+                MessageBox.Show("Корзина пуста.");
                 return;
             }
 
-            MessageBox.Show($"Заказ оформлен!\nТоваров: {_selectedProducts.Count}",
-                "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+            var db = Bayazitov_Shoes1Entities.GetContext();
 
-            ShoesPage.ClearOrderItems();
+            // Проверка остатков
+            foreach (var item in cartItems)
+            {
+                var stockInDb = db.StockItems.FirstOrDefault(s => s.ID_Item == item.Stock.ID_Item);
+                if (stockInDb == null)
+                {
+                    MessageBox.Show($"Позиция (ID={item.Stock.ID_Item}) не найдена.", "Ошибка",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-            this.DialogResult = true;
+                if (item.Quantity > stockInDb.ItemsQuantity)
+                {
+                    MessageBox.Show(
+                        $"Недостаточно товара «{item.ProductName}» (размер {item.SizeValue}).\n" +
+                        $"Запрошено: {item.Quantity}, доступно: {stockInDb.ItemsQuantity}.",
+                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
+            try
+            {
+                var order = new Orders
+                {
+                    ID_User = _currentUser.ID_User,
+                    OrderDate = DateTime.Now
+                };
+                db.Orders.Add(order);
+                db.SaveChanges(); // получить ID_Order
+
+                foreach (var item in cartItems)
+                {
+                    db.OrderProducts.Add(new OrderProducts
+                    {
+                        ID_Order = order.ID_Order,
+                        ID_Item = item.Stock.ID_Item,
+                        Quantity = item.Quantity
+                    });
+
+                    var stock = db.StockItems.First(s => s.ID_Item == item.Stock.ID_Item);
+                    stock.ItemsQuantity -= item.Quantity;
+                }
+
+                db.SaveChanges();
+
+                MessageBox.Show("Заказ сохранён!", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                ShoesPage.ClearOrderItems();
+                DialogResult = true;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения: " + ex.Message, "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CancelOrderBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.DialogResult = false;
             this.Close();
         }
-    }
 
-    // ============ ВСПОМОГАТЕЛЬНЫЕ КЛАССЫ ============
+        private void PlusBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as Button)?.DataContext as CartItem;
+            if (item == null) return;
 
-    /// <summary>
-    /// Элемент заказа: ID товара + количество
-    /// </summary>
-    public class OrderItem
-    {
-        public int ID_Product { get; set; }
-        public int Count { get; set; }
-    }
+            if (item.Quantity >= item.Stock.ItemsQuantity)
+            {
+                MessageBox.Show(
+                    $"На складе доступно только {item.Stock.ItemsQuantity} шт.",
+                    "Ограничение", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
 
-    /// <summary>
-    /// Расширение модели Products для хранения количества в UI
-    /// </summary>
-    public partial class Products
-    {
-        public int Quantity { get; set; }
-        public decimal TotalPrice => ProductCost * Quantity;
+            item.Quantity++;
+            UpdateDeliveryDate();
+            UpdateTotal();
+        }
+
+        private void MinusBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var item = (sender as Button)?.DataContext as CartItem;
+            if (item == null) return;
+
+            if (item.Quantity > 1)
+                item.Quantity--;
+            else
+                cartItems.Remove(item);
+
+            UpdateDeliveryDate();
+            UpdateTotal();
+
+            if (cartItems.Count == 0)
+            {
+                this.DialogResult = false;
+                this.Close();
+            }
+        }
     }
 }

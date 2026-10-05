@@ -7,80 +7,98 @@
         mc:Ignorable="d"
         Title="OrderWindow" Height="450" Width="900" FontFamily="Calibri" Icon="Res/Чудо Обувь.ico">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="71*"/>
-            <ColumnDefinition Width="9*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
-        <Border Grid.Row="0" BorderBrush="Gray" BorderThickness="1" Padding="15" Grid.ColumnSpan="2">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="Дата формирования заказа: " Grid.Row="0" Grid.Column="0" FontSize="18"></TextBlock>
-                <!--<DatePicker Grid.Row="0" Grid.Column="1" Name="OrderDatePicker" Width="120" Margin="5,0" SelectedDate="{x:Static sys:DateTime.Now}"  SelectedDateChanged="OrderDatePicker_SelectedDateChanged"></DatePicker>-->
-                <TextBlock Name="OrderDateText"  Grid.Row="0" Grid.Column="1" FontSize="18" FontWeight="Bold"></TextBlock>
-                <TextBlock Text="Дата доставки заказа: " Grid.Row="1" Grid.Column="0" FontSize="18"/>
-                <TextBlock Name="DeliveryDateText" Grid.Row="1" Grid.Column="1" FontSize="18" FontWeight="Bold"></TextBlock>
-                <TextBlock Text="ФИО клиента: " Grid.Row="2" Grid.Column="0" FontSize="18"></TextBlock>
-                <TextBlock Name="ClientNameText" Grid.Row="2" Grid.Column="1" FontSize="18" FontWeight="Bold"></TextBlock>
-                <TextBlock Text="Номер заказа: " Grid.Row="3" Grid.Column="0" FontSize="18"></TextBlock>
-                <TextBlock Name="OrderNumberText" Grid.Row="3" Grid.Column="1" FontSize="18" FontWeight="Bold"></TextBlock>
-            </Grid>
-        </Border>
-        <ListView Name="OrderItemsListView" Grid.Row="1" Margin="0,15,0,35" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Grid.RowSpan="2">
+
+        <!-- Шапка -->
+        <Grid Grid.Row="0" Margin="10,10,10,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Name="ClientLabel" FontSize="16" Margin="0,0,0,5"/>
+                <TextBlock Name="OrderNumberLabel" FontSize="16"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1">
+                <TextBlock Name="OrderDateLabel" FontSize="16" Margin="0,0,0,5"/>
+                <TextBlock Name="DeliveryDateLabel" FontSize="16"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Список позиций -->
+        <ListView Name="OrderListView" Grid.Row="1" Margin="10,0">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="10" Margin="0,5">
+                    <Border BorderBrush="LightGray" BorderThickness="0,0,0,1" Padding="5" Margin="0,5">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="80"/>
-                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <Image Width="100" Height="100" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Stretch="UniformToFill" HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="250"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="0"
+                                   Width="80" Height="80" Stretch="UniformToFill"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Image.Source>
-                                    <Binding Path="ProductPhotoPath">
+                                    <Binding Path="PhotoPath">
                                         <Binding.TargetNullValue>
-                                            <ImageSource>
-                                                /Res/picture.png
-                                            </ImageSource>
+                                            /Res/picture.png
                                         </Binding.TargetNullValue>
                                     </Binding>
                                 </Image.Source>
                             </Image>
 
+                            <TextBlock Text="{Binding ProductName}" Grid.Column="1" Grid.Row="0"
+                                       FontSize="18" FontWeight="Bold"/>
+
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                                <TextBlock Text="Размер: " FontSize="16"/>
+                                <TextBlock Text="{Binding SizeValue}" FontSize="16"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
+                                <TextBlock Text="Цена, руб.: " FontSize="16"/>
+                                <TextBlock Text="{Binding Price, StringFormat={}{0:0}}" FontSize="16"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="1"
+                                        HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <Button Content="+" Width="30" Height="30" Click="PlusBtn_Click"/>
+                                <TextBlock Text="{Binding Quantity}" FontSize="18" Margin="10,0"
+                                           VerticalAlignment="Center"/>
+                                <Button Content="−" Width="30" Height="30" Click="MinusBtn_Click"/>
+                            </StackPanel>
                         </Grid>
                     </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <Grid Grid.Row="2" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="2*"/>
-            </Grid.ColumnDefinitions>
-        </Grid>
-        <Button Name="SaveOrderButton" Content="Сохранить заказ" Click="SaveOrderButton_Click"  Grid.Row="3" Margin="615,5,10,5" Grid.ColumnSpan="2"></Button>
 
+        <!-- Итого -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <TextBlock Text="Итого: " FontSize="20" FontWeight="Bold"/>
+            <TextBlock Name="TotalTB" FontSize="20" FontWeight="Bold"/>
+        </StackPanel>
+
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button Name="SaveOrderBtn" Content="Сохранить заказ" Width="150" Height="35"
+                    Margin="5" Click="SaveOrderBtn_Click"/>
+            <Button Name="CancelOrderBtn" Content="Отмена" Width="120" Height="35"
+                    Margin="5" Click="CancelOrderBtn_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
